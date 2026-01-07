@@ -1,0 +1,283 @@
+'use client'
+
+import { useState, useMemo } from 'react'
+import { SignOutButton } from '@/components/auth/sign-out-button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { OverviewCards } from './overview-cards'
+import { SpendingChart } from './spending-chart'
+import { TransactionList } from './transaction-list'
+import { AddTransactionDialog } from './add-transaction-dialog'
+import { AddAccountDialog } from './add-account-dialog'
+import { BudgetList } from './budget-list'
+import type { Household, HouseholdMember, Category, Account, Transaction, Budget } from '@/lib/types'
+
+interface Props {
+  household: Household
+  currentMember: HouseholdMember
+  members: HouseholdMember[]
+  categories: Category[]
+  accounts: Account[]
+  transactions: Transaction[]
+  budgets: Budget[]
+  currentMonth: string
+}
+
+export function DashboardContent({
+  household,
+  currentMember,
+  members,
+  categories,
+  accounts,
+  transactions,
+  budgets,
+  currentMonth
+}: Props) {
+  const [showInviteCode, setShowInviteCode] = useState(false)
+
+  // Calculate overview stats
+  const stats = useMemo(() => {
+    let totalIncome = 0
+    let totalExpenses = 0
+
+    transactions.forEach(t => {
+      const amount = Math.abs(t.amount)
+      if (t.category?.type === 'income') {
+        totalIncome += amount
+      } else {
+        totalExpenses += amount
+      }
+    })
+
+    return {
+      income: totalIncome,
+      expenses: totalExpenses,
+      balance: totalIncome - totalExpenses
+    }
+  }, [transactions])
+
+  // Calculate category spending for chart
+  const categorySpending = useMemo(() => {
+    const spending = new Map<string, { name: string; value: number; budget: number | null }>()
+
+    transactions
+      .filter(t => t.category?.type === 'expense')
+      .forEach(t => {
+        const catId = t.category_id
+        const existing = spending.get(catId)
+        const amount = Math.abs(t.amount)
+
+        if (existing) {
+          existing.value += amount
+        } else {
+          const budget = budgets.find(b => b.category_id === catId)
+          spending.set(catId, {
+            name: t.category?.name || 'Unknown',
+            value: amount,
+            budget: budget?.amount || null
+          })
+        }
+      })
+
+    return Array.from(spending.values())
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8)
+  }, [transactions, budgets])
+
+  const expenseCategories = categories.filter(c => c.type === 'expense')
+  const incomeCategories = categories.filter(c => c.type === 'income')
+
+  const monthName = new Date(currentMonth).toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric'
+  })
+
+  return (
+    <main className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold">{household.name}</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm text-muted-foreground">
+                  {members.length} member{members.length !== 1 ? 's' : ''}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-6 px-2"
+                  onClick={() => setShowInviteCode(!showInviteCode)}
+                >
+                  {showInviteCode ? household.invite_code : 'Show Invite Code'}
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm font-medium">{currentMember.display_name}</p>
+                <Badge variant="secondary" className="text-xs">
+                  {currentMember.role}
+                </Badge>
+              </div>
+              <SignOutButton />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-6">
+        <Tabs defaultValue="overview" className="space-y-6">
+          <div className="flex justify-between items-center">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="transactions">Transactions</TabsTrigger>
+              <TabsTrigger value="budgets">Budgets</TabsTrigger>
+              <TabsTrigger value="accounts">Accounts</TabsTrigger>
+            </TabsList>
+
+            <div className="flex gap-2">
+              <AddTransactionDialog
+                householdId={household.id}
+                memberId={currentMember.id}
+                categories={categories}
+                accounts={accounts}
+                members={members}
+              />
+            </div>
+          </div>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">{monthName}</h2>
+            </div>
+
+            <OverviewCards
+              income={stats.income}
+              expenses={stats.expenses}
+              balance={stats.balance}
+            />
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Spending by Category</CardTitle>
+                  <CardDescription>Top expense categories this month</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {categorySpending.length > 0 ? (
+                    <SpendingChart data={categorySpending} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-8">
+                      No expenses recorded yet
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Transactions</CardTitle>
+                  <CardDescription>Latest activity</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <TransactionList
+                    transactions={transactions.slice(0, 5)}
+                    compact
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Transactions Tab */}
+          <TabsContent value="transactions" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>All Transactions</CardTitle>
+                <CardDescription>{monthName}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <TransactionList transactions={transactions} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Budgets Tab */}
+          <TabsContent value="budgets" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Monthly Budgets</CardTitle>
+                <CardDescription>Track spending against your budget targets</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BudgetList
+                  householdId={household.id}
+                  categories={expenseCategories}
+                  budgets={budgets}
+                  transactions={transactions}
+                  currentMonth={currentMonth}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Accounts Tab */}
+          <TabsContent value="accounts" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Accounts</h2>
+              <AddAccountDialog householdId={household.id} />
+            </div>
+
+            {accounts.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {accounts.map(account => {
+                  // Calculate current balance
+                  const accountTransactions = transactions.filter(t => t.account_id === account.id)
+                  const transactionSum = accountTransactions.reduce((sum, t) => sum + t.amount, 0)
+                  const currentBalance = account.initial_balance + transactionSum
+
+                  return (
+                    <Card key={account.id}>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">{account.name}</CardTitle>
+                          <Badge variant={account.is_shared ? 'default' : 'secondary'}>
+                            {account.is_shared ? 'Shared' : 'Personal'}
+                          </Badge>
+                        </div>
+                        <CardDescription className="capitalize">
+                          {account.type.replace('_', ' ')}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className={`text-2xl font-bold ${currentBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {currentBalance.toLocaleString('de-DE', {
+                            style: 'currency',
+                            currency: account.currency
+                          })}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground mb-4">No accounts yet</p>
+                  <AddAccountDialog householdId={household.id} />
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </main>
+  )
+}
