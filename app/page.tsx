@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { MagicLinkForm } from '@/components/auth/magic-link-form'
 import { AnimatedBackground } from '@/components/ui/animated-background'
 import { RecentHouseholds } from '@/components/landing/recent-households'
+import { AppQRCode } from '@/components/landing/app-qr-code'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -73,6 +74,8 @@ export default async function Home() {
           )}
         </div>
       </div>
+
+      <AppQRCode />
     </main>
   )
 }

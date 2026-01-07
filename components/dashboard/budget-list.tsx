@@ -6,6 +6,7 @@ import { AlertTriangle, CheckCircle2, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { updateBudgetAction } from '@/app/actions'
+import { EditCategoryDialog } from './edit-category-dialog'
 import type { Category, Budget, Transaction, HouseholdSettings } from '@/lib/types'
 import { DEFAULT_SETTINGS } from '@/lib/types'
 
@@ -177,7 +178,9 @@ function BudgetRow({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           {getStatusIcon()}
+          {category.icon && <span>{category.icon}</span>}
           <span className="font-medium">{category.name}</span>
+          <EditCategoryDialog category={category} />
         </div>
         <div className="flex items-center gap-2">
           {editing ? (
