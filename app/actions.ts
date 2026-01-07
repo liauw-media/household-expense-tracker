@@ -1,8 +1,44 @@
 'use server'
 
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { HouseholdSettings } from '@/lib/types'
+
+export async function switchHouseholdAction(householdId: string) {
+  const cookieStore = await cookies()
+
+  // Verify user is actually a member of this household
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const { data: membership } = await supabase
+    .from('household_members')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('household_id', householdId)
+    .single()
+
+  if (!membership) {
+    return { error: 'Not a member of this household' }
+  }
+
+  // Save selection to cookie (30 days)
+  cookieStore.set('selected_household', householdId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+    path: '/',
+  })
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
 
 export async function createHouseholdAction(formData: FormData) {
   const supabase = await createClient()

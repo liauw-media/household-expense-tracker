@@ -18,12 +18,14 @@ import { AddAccountDialog } from './add-account-dialog'
 import { BudgetList } from './budget-list'
 import { SettingsDialog } from '@/components/settings/settings-dialog'
 import { InviteQRDialog } from '@/components/household/invite-qr-dialog'
+import { HouseholdSwitcher } from '@/components/household/household-switcher'
 import { formatCurrency } from '@/lib/format'
 import type { Household, HouseholdMember, Category, Account, Transaction, Budget, HouseholdSettings } from '@/lib/types'
 import { DEFAULT_SETTINGS } from '@/lib/types'
 
 interface Props {
   household: Household
+  allHouseholds: Household[]
   currentMember: HouseholdMember
   members: HouseholdMember[]
   categories: Category[]
@@ -36,6 +38,7 @@ interface Props {
 
 export function DashboardContent({
   household,
+  allHouseholds,
   currentMember,
   members,
   categories,
@@ -147,7 +150,15 @@ export function DashboardContent({
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex justify-between items-center gap-2">
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-2xl font-bold truncate">{household.name}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg sm:text-2xl font-bold truncate">{household.name}</h1>
+                {allHouseholds.length > 1 && (
+                  <HouseholdSwitcher
+                    currentHousehold={household}
+                    allHouseholds={allHouseholds}
+                  />
+                )}
+              </div>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs sm:text-sm text-muted-foreground">
                   {members.length} member{members.length !== 1 ? 's' : ''}

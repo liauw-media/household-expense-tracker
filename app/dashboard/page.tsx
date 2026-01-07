@@ -1,9 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { DashboardContent } from '@/components/dashboard/dashboard-content'
 
-export default async function DashboardPage() {
+interface Props {
+  searchParams: Promise<{ household?: string }>
+}
+
+export default async function DashboardPage({ searchParams }: Props) {
   const supabase = await createClient()
+  const params = await searchParams
 
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -11,19 +17,31 @@ export default async function DashboardPage() {
     redirect('/')
   }
 
-  // Get user's household membership
-  const { data: member } = await supabase
+  // Get ALL user's household memberships
+  const { data: memberships } = await supabase
     .from('household_members')
     .select('*, household:households(*)')
     .eq('user_id', user.id)
-    .single()
+    .order('created_at', { ascending: true })
 
   // If no household, redirect to setup
-  if (!member) {
+  if (!memberships || memberships.length === 0) {
     redirect('/setup')
   }
 
+  // Determine which household to show
+  const cookieStore = await cookies()
+  const savedHouseholdId = cookieStore.get('selected_household')?.value
+  const requestedHouseholdId = params.household || savedHouseholdId
+
+  // Find the requested household or default to first
+  let member = memberships.find(m => m.household_id === requestedHouseholdId)
+  if (!member) {
+    member = memberships[0]
+  }
+
   const household = member.household as any
+  const allHouseholds = memberships.map(m => m.household as any)
 
   // Get current month and 6 months ago for trend
   const now = new Date()
@@ -89,6 +107,7 @@ export default async function DashboardPage() {
   return (
     <DashboardContent
       household={household}
+      allHouseholds={allHouseholds}
       currentMember={member}
       members={members || []}
       categories={categories || []}
