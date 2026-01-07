@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { MagicLinkForm } from '@/components/auth/magic-link-form'
+import { AnimatedBackground } from '@/components/ui/animated-background'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -13,6 +14,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
+      <AnimatedBackground />
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-3">
@@ -23,7 +25,7 @@ export default async function Home() {
           </p>
         </div>
 
-        <div className="border rounded-lg p-8 mb-6 bg-card">
+        <div className="border rounded-lg p-8 mb-6 bg-card/80 backdrop-blur-sm">
           <h2 className="text-xl font-semibold mb-4">
             Sign In
           </h2>
@@ -33,7 +35,7 @@ export default async function Home() {
           <MagicLinkForm />
         </div>
 
-        <div className="border rounded-lg p-6 bg-card">
+        <div className="border rounded-lg p-6 bg-card/80 backdrop-blur-sm">
           <h3 className="text-lg font-semibold mb-3">
             Features
           </h3>
