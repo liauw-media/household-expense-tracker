@@ -67,28 +67,28 @@ export function BudgetList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Budget Summary */}
       {totalBudgeted > 0 && (
-        <div className={`rounded-lg p-4 ${totalPercentage >= 100 ? 'bg-red-500/10' : totalPercentage >= 80 ? 'bg-yellow-500/10' : 'bg-green-500/10'}`}>
-          <div className="flex justify-between items-center mb-2">
-            <span className="font-semibold">Total Budget</span>
-            <span className="text-lg font-bold">
+        <div className={`rounded-lg p-3 sm:p-4 ${totalPercentage >= 100 ? 'bg-red-500/10' : totalPercentage >= 80 ? 'bg-yellow-500/10' : 'bg-green-500/10'}`}>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 mb-2">
+            <span className="text-sm sm:text-base font-semibold">Total Budget</span>
+            <span className="text-base sm:text-lg font-bold">
               {formatCurrency(totalSpent)} / {formatCurrency(totalBudgeted)}
             </span>
           </div>
-          <div className="h-3 bg-secondary rounded-full overflow-hidden">
+          <div className="h-2 sm:h-3 bg-secondary rounded-full overflow-hidden">
             <div
               className={`h-full transition-all ${totalPercentage >= 100 ? 'bg-red-500' : totalPercentage >= 80 ? 'bg-yellow-500' : 'bg-green-500'}`}
               style={{ width: `${Math.min(totalPercentage, 100)}%` }}
             />
           </div>
-          <div className="flex justify-between text-sm mt-1">
-            <span className="text-muted-foreground">{totalPercentage.toFixed(0)}% of budget used</span>
+          <div className="flex justify-between text-xs sm:text-sm mt-1">
+            <span className="text-muted-foreground">{totalPercentage.toFixed(0)}% used</span>
             <span className={totalPercentage >= 100 ? 'text-red-500 font-medium' : 'text-muted-foreground'}>
               {totalPercentage >= 100
                 ? `${formatCurrency(totalSpent - totalBudgeted)} over`
-                : `${formatCurrency(totalBudgeted - totalSpent)} remaining`}
+                : `${formatCurrency(totalBudgeted - totalSpent)} left`}
             </span>
           </div>
         </div>
@@ -165,39 +165,40 @@ function BudgetRow({
   const getStatusIcon = () => {
     if (budget === 0) return null
     if (percentage >= 100) {
-      return <XCircle className="h-5 w-5 text-red-500" />
+      return <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
     }
     if (percentage >= 80) {
-      return <AlertTriangle className="h-5 w-5 text-yellow-500" />
+      return <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />
     }
-    return <CheckCircle2 className="h-5 w-5 text-green-500" />
+    return <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
   }
 
   return (
-    <div className={`border rounded-lg p-4 ${percentage >= 100 ? 'border-red-500/50 bg-red-500/5' : ''}`}>
-      <div className="flex items-center justify-between mb-2">
+    <div className={`border rounded-lg p-3 sm:p-4 ${percentage >= 100 ? 'border-red-500/50 bg-red-500/5' : ''}`}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">
           {getStatusIcon()}
-          {category.icon && <span>{category.icon}</span>}
-          <span className="font-medium">{category.name}</span>
+          {category.icon && <span className="text-sm sm:text-base">{category.icon}</span>}
+          <span className="text-sm sm:text-base font-medium">{category.name}</span>
           <EditCategoryDialog category={category} />
         </div>
         <div className="flex items-center gap-2">
           {editing ? (
-            <>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Input
                 type="number"
                 step="0.01"
                 min="0"
                 value={newBudget}
                 onChange={(e) => setNewBudget(e.target.value)}
-                className="w-24 h-8"
+                className="w-20 sm:w-24 h-8 text-sm"
                 disabled={loading}
               />
               <Button
                 size="sm"
                 onClick={handleSave}
                 disabled={loading}
+                className="h-8 text-xs sm:text-sm"
               >
                 Save
               </Button>
@@ -209,15 +210,16 @@ function BudgetRow({
                   setNewBudget(budget.toString())
                 }}
                 disabled={loading}
+                className="h-8 text-xs sm:text-sm"
               >
                 Cancel
               </Button>
-            </>
+            </div>
           ) : (
             <>
               <div className="text-right">
-                <span className="font-semibold">{formatCurrency(spent)}</span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm sm:text-base font-semibold">{formatCurrency(spent)}</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">
                   {' '}/ {budget > 0 ? formatCurrency(budget) : 'No budget'}
                 </span>
               </div>
@@ -225,6 +227,7 @@ function BudgetRow({
                 size="sm"
                 variant="ghost"
                 onClick={() => setEditing(true)}
+                className="h-8 text-xs sm:text-sm"
               >
                 Edit
               </Button>
@@ -235,20 +238,20 @@ function BudgetRow({
 
       {budget > 0 && (
         <div className="space-y-1">
-          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+          <div className="h-1.5 sm:h-2 bg-secondary rounded-full overflow-hidden">
             <div
               className={`h-full transition-all ${getProgressColor()}`}
               style={{ width: `${Math.min(percentage, 100)}%` }}
             />
           </div>
-          <div className="flex justify-between text-xs text-muted-foreground">
+          <div className="flex justify-between text-[10px] sm:text-xs text-muted-foreground">
             <span>{percentage.toFixed(0)}% used</span>
             {percentage >= 100 ? (
               <span className="text-red-500 font-medium">
-                {formatCurrency(spent - budget)} over budget
+                {formatCurrency(spent - budget)} over
               </span>
             ) : (
-              <span>{formatCurrency(budget - spent)} remaining</span>
+              <span>{formatCurrency(budget - spent)} left</span>
             )}
           </div>
         </div>

@@ -74,55 +74,66 @@ export function TransactionList({ transactions, settings = DEFAULT_SETTINGS, com
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Date</TableHead>
-          <TableHead>Description</TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead>Member</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
-          <TableHead></TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {transactions.map(transaction => (
-          <TableRow key={transaction.id}>
-            <TableCell className="font-medium">
-              {formatDate(transaction.date)}
-            </TableCell>
-            <TableCell>
-              {transaction.description || '-'}
-            </TableCell>
-            <TableCell>
-              <Badge variant={transaction.category?.type === 'income' ? 'default' : 'secondary'}>
-                {transaction.category?.name}
-              </Badge>
-            </TableCell>
-            <TableCell>{transaction.member?.display_name}</TableCell>
-            <TableCell className={`text-right font-medium ${
-              transaction.category?.type === 'income' ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {transaction.category?.type === 'income' ? '+' : '-'}
-              {formatCurrency(transaction.amount)}
-            </TableCell>
-            <TableCell>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-                onClick={async () => {
-                  if (confirm('Delete this transaction?')) {
-                    await deleteTransactionAction(transaction.id)
-                  }
-                }}
-              >
-                Delete
-              </Button>
-            </TableCell>
+    <div className="overflow-x-auto -mx-3 sm:mx-0">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-xs sm:text-sm">Date</TableHead>
+            <TableHead className="text-xs sm:text-sm">Description</TableHead>
+            <TableHead className="hidden sm:table-cell text-xs sm:text-sm">Category</TableHead>
+            <TableHead className="hidden md:table-cell text-xs sm:text-sm">Member</TableHead>
+            <TableHead className="text-right text-xs sm:text-sm">Amount</TableHead>
+            <TableHead className="w-16"></TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {transactions.map(transaction => (
+            <TableRow key={transaction.id}>
+              <TableCell className="font-medium text-xs sm:text-sm py-2 sm:py-4">
+                {formatDate(transaction.date)}
+              </TableCell>
+              <TableCell className="text-xs sm:text-sm py-2 sm:py-4">
+                <div>
+                  <span className="block truncate max-w-[120px] sm:max-w-none">
+                    {transaction.description || '-'}
+                  </span>
+                  <span className="sm:hidden text-[10px] text-muted-foreground">
+                    {transaction.category?.name}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell className="hidden sm:table-cell py-2 sm:py-4">
+                <Badge variant={transaction.category?.type === 'income' ? 'default' : 'secondary'} className="text-xs">
+                  {transaction.category?.name}
+                </Badge>
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-xs sm:text-sm py-2 sm:py-4">
+                {transaction.member?.display_name}
+              </TableCell>
+              <TableCell className={`text-right font-medium text-xs sm:text-sm py-2 sm:py-4 ${
+                transaction.category?.type === 'income' ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {transaction.category?.type === 'income' ? '+' : '-'}
+                {formatCurrency(transaction.amount)}
+              </TableCell>
+              <TableCell className="py-2 sm:py-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive h-7 px-2 text-xs"
+                  onClick={async () => {
+                    if (confirm('Delete this transaction?')) {
+                      await deleteTransactionAction(transaction.id)
+                    }
+                  }}
+                >
+                  Delete
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }

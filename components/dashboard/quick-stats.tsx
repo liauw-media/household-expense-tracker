@@ -45,18 +45,18 @@ export function QuickStats({ transactions, settings = DEFAULT_SETTINGS }: Props)
   }
 
   return (
-    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-2 sm:gap-4 grid-cols-2 lg:grid-cols-4">
       {biggestExpense && (
         <Card className="bg-red-500/5 border-red-500/20">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2 text-red-500 mb-1">
-              <TrendingDown className="h-4 w-4" />
-              <span className="text-xs font-medium">Biggest Expense</span>
+          <CardContent className="p-3 sm:pt-4 sm:p-6">
+            <div className="flex items-center gap-1 sm:gap-2 text-red-500 mb-1">
+              <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-[10px] sm:text-xs font-medium">Biggest Expense</span>
             </div>
-            <p className="text-lg font-bold">
+            <p className="text-base sm:text-lg font-bold">
               {formatCurrency(Math.abs(biggestExpense.amount), settings)}
             </p>
-            <p className="text-xs text-muted-foreground truncate">
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
               {biggestExpense.description || biggestExpense.category?.name}
             </p>
           </CardContent>
@@ -65,13 +65,13 @@ export function QuickStats({ transactions, settings = DEFAULT_SETTINGS }: Props)
 
       {topCategory && (
         <Card className="bg-orange-500/5 border-orange-500/20">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-2 text-orange-500 mb-1">
-              <TrendingUp className="h-4 w-4" />
-              <span className="text-xs font-medium">Top Category</span>
+          <CardContent className="p-3 sm:pt-4 sm:p-6">
+            <div className="flex items-center gap-1 sm:gap-2 text-orange-500 mb-1">
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-[10px] sm:text-xs font-medium">Top Category</span>
             </div>
-            <p className="text-lg font-bold truncate">{topCategory.name}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-base sm:text-lg font-bold truncate">{topCategory.name}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               {formatCurrency(topCategory.total, settings)}
             </p>
           </CardContent>
@@ -79,28 +79,28 @@ export function QuickStats({ transactions, settings = DEFAULT_SETTINGS }: Props)
       )}
 
       <Card className="bg-blue-500/5 border-blue-500/20">
-        <CardContent className="pt-4">
-          <div className="flex items-center gap-2 text-blue-500 mb-1">
-            <Zap className="h-4 w-4" />
-            <span className="text-xs font-medium">Avg Daily Spend</span>
+        <CardContent className="p-3 sm:pt-4 sm:p-6">
+          <div className="flex items-center gap-1 sm:gap-2 text-blue-500 mb-1">
+            <Zap className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="text-[10px] sm:text-xs font-medium">Daily Avg</span>
           </div>
-          <p className="text-lg font-bold">
+          <p className="text-base sm:text-lg font-bold">
             {formatCurrency(avgDaily, settings)}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">
             {daysWithExpenses} days with expenses
           </p>
         </CardContent>
       </Card>
 
       <Card className="bg-purple-500/5 border-purple-500/20">
-        <CardContent className="pt-4">
-          <div className="flex items-center gap-2 text-purple-500 mb-1">
-            <Receipt className="h-4 w-4" />
-            <span className="text-xs font-medium">Transactions</span>
+        <CardContent className="p-3 sm:pt-4 sm:p-6">
+          <div className="flex items-center gap-1 sm:gap-2 text-purple-500 mb-1">
+            <Receipt className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="text-[10px] sm:text-xs font-medium">Transactions</span>
           </div>
-          <p className="text-lg font-bold">{txCount}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-base sm:text-lg font-bold">{txCount}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">
             This month
           </p>
         </CardContent>

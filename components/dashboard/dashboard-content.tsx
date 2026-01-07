@@ -144,12 +144,12 @@ export function DashboardContent({
     <main className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold">{household.name}</h1>
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex justify-between items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg sm:text-2xl font-bold truncate">{household.name}</h1>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs sm:text-sm text-muted-foreground">
                   {members.length} member{members.length !== 1 ? 's' : ''}
                 </span>
                 <InviteQRDialog
@@ -158,8 +158,8 @@ export function DashboardContent({
                 />
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium">{currentMember.display_name}</p>
                 <Badge variant="secondary" className="text-xs">
                   {currentMember.role}
@@ -176,17 +176,17 @@ export function DashboardContent({
       </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-6">
-        <Tabs defaultValue="overview" className="space-y-6">
-          <div className="flex justify-between items-center">
-            <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="transactions">Transactions</TabsTrigger>
-              <TabsTrigger value="budgets">Budgets</TabsTrigger>
-              <TabsTrigger value="accounts">Accounts</TabsTrigger>
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <TabsList className="w-full sm:w-auto overflow-x-auto">
+              <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+              <TabsTrigger value="transactions" className="text-xs sm:text-sm">Transactions</TabsTrigger>
+              <TabsTrigger value="budgets" className="text-xs sm:text-sm">Budgets</TabsTrigger>
+              <TabsTrigger value="accounts" className="text-xs sm:text-sm">Accounts</TabsTrigger>
             </TabsList>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               <AddTransactionDialog
                 householdId={household.id}
                 memberId={currentMember.id}
