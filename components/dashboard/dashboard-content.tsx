@@ -294,6 +294,7 @@ export function DashboardContent({
                   budgets={budgets}
                   transactions={transactions}
                   currentMonth={currentMonth}
+                  settings={settings}
                 />
               </CardContent>
             </Card>

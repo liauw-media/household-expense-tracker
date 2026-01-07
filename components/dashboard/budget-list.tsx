@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { AlertTriangle, CheckCircle2, XCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { updateBudgetAction } from '@/app/actions'
-import type { Category, Budget, Transaction } from '@/lib/types'
+import type { Category, Budget, Transaction, HouseholdSettings } from '@/lib/types'
+import { DEFAULT_SETTINGS } from '@/lib/types'
 
 interface Props {
   householdId: string
@@ -13,6 +15,7 @@ interface Props {
   budgets: Budget[]
   transactions: Transaction[]
   currentMonth: string
+  settings?: HouseholdSettings
 }
 
 export function BudgetList({
@@ -20,7 +23,8 @@ export function BudgetList({
   categories,
   budgets,
   transactions,
-  currentMonth
+  currentMonth,
+  settings = DEFAULT_SETTINGS
 }: Props) {
   const router = useRouter()
 
@@ -40,9 +44,11 @@ export function BudgetList({
   })
 
   const formatCurrency = (amount: number) => {
-    return amount.toLocaleString('de-DE', {
+    return amount.toLocaleString(settings.locale, {
       style: 'currency',
-      currency: 'EUR'
+      currency: settings.currency,
+      minimumFractionDigits: settings.showCents ? 2 : 0,
+      maximumFractionDigits: settings.showCents ? 2 : 0,
     })
   }
 
@@ -124,10 +130,24 @@ function BudgetRow({
     return 'bg-green-500'
   }
 
+  const getStatusIcon = () => {
+    if (budget === 0) return null
+    if (percentage >= 100) {
+      return <XCircle className="h-5 w-5 text-red-500" />
+    }
+    if (percentage >= 80) {
+      return <AlertTriangle className="h-5 w-5 text-yellow-500" />
+    }
+    return <CheckCircle2 className="h-5 w-5 text-green-500" />
+  }
+
   return (
-    <div className="border rounded-lg p-4">
+    <div className={`border rounded-lg p-4 ${percentage >= 100 ? 'border-red-500/50 bg-red-500/5' : ''}`}>
       <div className="flex items-center justify-between mb-2">
-        <span className="font-medium">{category.name}</span>
+        <div className="flex items-center gap-2">
+          {getStatusIcon()}
+          <span className="font-medium">{category.name}</span>
+        </div>
         <div className="flex items-center gap-2">
           {editing ? (
             <>
@@ -186,7 +206,13 @@ function BudgetRow({
           </div>
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>{percentage.toFixed(0)}% used</span>
-            <span>{formatCurrency(Math.max(budget - spent, 0))} remaining</span>
+            {percentage >= 100 ? (
+              <span className="text-red-500 font-medium">
+                {formatCurrency(spent - budget)} over budget
+              </span>
+            ) : (
+              <span>{formatCurrency(budget - spent)} remaining</span>
+            )}
           </div>
         </div>
       )}
