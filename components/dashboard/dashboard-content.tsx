@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { OverviewCards } from './overview-cards'
+import { QuickStats } from './quick-stats'
 import { SpendingChart } from './spending-chart'
 import { MonthlyTrendChart } from './monthly-trend-chart'
 import { IncomeExpenseChart } from './income-expense-chart'
@@ -202,7 +203,10 @@ export function DashboardContent({
               income={stats.income}
               expenses={stats.expenses}
               balance={stats.balance}
+              settings={settings}
             />
+
+            <QuickStats transactions={transactions} settings={settings} />
 
             {/* Charts Row */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

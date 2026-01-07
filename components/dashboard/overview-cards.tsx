@@ -1,20 +1,19 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency } from '@/lib/format'
+import type { HouseholdSettings } from '@/lib/types'
+import { DEFAULT_SETTINGS } from '@/lib/types'
 
 interface Props {
   income: number
   expenses: number
   balance: number
+  settings?: HouseholdSettings
 }
 
-export function OverviewCards({ income, expenses, balance }: Props) {
-  const formatCurrency = (amount: number) => {
-    return amount.toLocaleString('de-DE', {
-      style: 'currency',
-      currency: 'EUR'
-    })
-  }
+export function OverviewCards({ income, expenses, balance, settings = DEFAULT_SETTINGS }: Props) {
+  const fmt = (amount: number) => formatCurrency(amount, settings)
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
@@ -36,7 +35,7 @@ export function OverviewCards({ income, expenses, balance }: Props) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-green-600">
-            +{formatCurrency(income)}
+            +{fmt(income)}
           </div>
           <p className="text-xs text-muted-foreground">
             This month
@@ -62,7 +61,7 @@ export function OverviewCards({ income, expenses, balance }: Props) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-red-600">
-            -{formatCurrency(expenses)}
+            -{fmt(expenses)}
           </div>
           <p className="text-xs text-muted-foreground">
             This month
@@ -89,7 +88,7 @@ export function OverviewCards({ income, expenses, balance }: Props) {
         </CardHeader>
         <CardContent>
           <div className={`text-2xl font-bold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {balance >= 0 ? '+' : ''}{formatCurrency(balance)}
+            {balance >= 0 ? '+' : ''}{fmt(balance)}
           </div>
           <p className="text-xs text-muted-foreground">
             Income - Expenses

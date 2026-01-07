@@ -52,6 +52,11 @@ export function BudgetList({
     })
   }
 
+  // Calculate totals for summary
+  const totalBudgeted = categories.reduce((sum, cat) => sum + (budgetByCategory.get(cat.id) || 0), 0)
+  const totalSpent = categories.reduce((sum, cat) => sum + (spendingByCategory.get(cat.id) || 0), 0)
+  const totalPercentage = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0
+
   if (categories.length === 0) {
     return (
       <p className="text-sm text-muted-foreground text-center py-8">
@@ -62,6 +67,32 @@ export function BudgetList({
 
   return (
     <div className="space-y-4">
+      {/* Budget Summary */}
+      {totalBudgeted > 0 && (
+        <div className={`rounded-lg p-4 ${totalPercentage >= 100 ? 'bg-red-500/10' : totalPercentage >= 80 ? 'bg-yellow-500/10' : 'bg-green-500/10'}`}>
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-semibold">Total Budget</span>
+            <span className="text-lg font-bold">
+              {formatCurrency(totalSpent)} / {formatCurrency(totalBudgeted)}
+            </span>
+          </div>
+          <div className="h-3 bg-secondary rounded-full overflow-hidden">
+            <div
+              className={`h-full transition-all ${totalPercentage >= 100 ? 'bg-red-500' : totalPercentage >= 80 ? 'bg-yellow-500' : 'bg-green-500'}`}
+              style={{ width: `${Math.min(totalPercentage, 100)}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-sm mt-1">
+            <span className="text-muted-foreground">{totalPercentage.toFixed(0)}% of budget used</span>
+            <span className={totalPercentage >= 100 ? 'text-red-500 font-medium' : 'text-muted-foreground'}>
+              {totalPercentage >= 100
+                ? `${formatCurrency(totalSpent - totalBudgeted)} over`
+                : `${formatCurrency(totalBudgeted - totalSpent)} remaining`}
+            </span>
+          </div>
+        </div>
+      )}
+
       {categories.map(category => {
         const spent = spendingByCategory.get(category.id) || 0
         const budget = budgetByCategory.get(category.id) || 0
@@ -181,9 +212,12 @@ function BudgetRow({
             </>
           ) : (
             <>
-              <span className="text-sm text-muted-foreground">
-                {formatCurrency(spent)} / {budget > 0 ? formatCurrency(budget) : 'No budget'}
-              </span>
+              <div className="text-right">
+                <span className="font-semibold">{formatCurrency(spent)}</span>
+                <span className="text-sm text-muted-foreground">
+                  {' '}/ {budget > 0 ? formatCurrency(budget) : 'No budget'}
+                </span>
+              </div>
               <Button
                 size="sm"
                 variant="ghost"

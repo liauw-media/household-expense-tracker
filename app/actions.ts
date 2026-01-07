@@ -174,6 +174,48 @@ export async function updateBudgetAction(formData: FormData) {
   return { success: true, budget: data }
 }
 
+export async function updateCategoryAction(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const id = formData.get('id') as string
+  const name = formData.get('name') as string
+  const icon = formData.get('icon') as string | null
+  const color = formData.get('color') as string | null
+
+  const { error } = await supabase
+    .from('categories')
+    .update({ name, icon, color })
+    .eq('id', id)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+export async function deleteCategoryAction(id: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('categories')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
 export async function updateHouseholdSettingsAction(
   householdId: string,
   settings: HouseholdSettings

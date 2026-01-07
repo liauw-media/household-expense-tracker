@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { MagicLinkForm } from '@/components/auth/magic-link-form'
 import { AnimatedBackground } from '@/components/ui/animated-background'
+import { RecentHouseholds } from '@/components/landing/recent-households'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -11,6 +12,11 @@ export default async function Home() {
   if (user) {
     redirect('/dashboard')
   }
+
+  // Fetch recent households
+  const { data: recentHouseholds } = await supabase.rpc('get_recent_households', {
+    limit_count: 3
+  })
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
@@ -61,6 +67,10 @@ export default async function Home() {
               <span>Multiple accounts support</span>
             </li>
           </ul>
+
+          {recentHouseholds && recentHouseholds.length > 0 && (
+            <RecentHouseholds households={recentHouseholds} />
+          )}
         </div>
       </div>
     </main>
